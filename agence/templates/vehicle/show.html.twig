@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ vehicle.brand }}{% endblock %}
+
+{% block body %}
+    <h1>{{ vehicle.brand }}</h1>
+
+    <h3>Commentaires :</h3>
+    <ul>
+        {% for comment in vehicle.comments %}
+            <li>
+                <strong>{{ comment.user.username }} :</strong> 
+                {{ comment.content }} 
+                (Note : {{ comment.rating }})
+            </li>
+        {% else %}
+            <p>Aucun commentaire pour ce véhicule.</p>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
