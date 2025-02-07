@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\VehicleRepository;
+use App\Entity\Reservation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,31 +17,33 @@ class Vehicle
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $brand = null;
+    private ?string $marque = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $registrationNumber = null;
+    private ?string $immatriculation = null;
 
     #[ORM\Column(nullable: true)]
-    private ?float $dailyPrice = null;
+    private ?float $prixJournalier = null;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $availabilityStatus = null;
+    private ?bool $disponible = null;
 
-    #[ORM\OneToMany(targetEntity:"App\Entity\Comment", mappedBy:"vehicle")]
-    #[ORM\JoinColumn(nullable: false)]
-    private Collection $comments;
-
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'vehicle')]
+    private Collection $comment;
 
     /**
      * @var Collection<int, Reservation>
      */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'vehicle')]
-    private Collection $vehicle;
+    private Collection $reservations;
 
     public function __construct()
     {
-        $this->comments = new ArrayCollection();
+        $this->comment = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -48,103 +51,76 @@ class Vehicle
         return $this->id;
     }
 
-    public function getBrand(): ?string
+    public function getMarque(): ?string
     {
-        return $this->brand;
+        return $this->marque;
     }
 
-    public function setBrand(?string $brand): static
+    public function setMarque(?string $marque): static
     {
-        $this->brand = $brand;
+        $this->marque = $marque;
 
         return $this;
     }
 
-    public function getRegistrationNumber(): ?string
+    public function getImmatriculation(): ?string
     {
-        return $this->registrationNumber;
+        return $this->immatriculation;
     }
 
-    public function setRegistrationNumber(?string $registrationNumber): static
+    public function setImmatriculation(?string $immatriculation): static
     {
-        $this->registrationNumber = $registrationNumber;
+        $this->immatriculation = $immatriculation;
 
         return $this;
     }
 
-    public function getDailyPrice(): ?float
+    public function getPrixJournalier(): ?float
     {
-        return $this->dailyPrice;
+        return $this->prixJournalier;
     }
 
-    public function setDailyPrice(?float $dailyPrice): static
+    public function setPrixJournalier(?float $prixJournalier): static
     {
-        $this->dailyPrice = $dailyPrice;
+        $this->prixJournalier = $prixJournalier;
 
         return $this;
     }
 
-    public function isAvailabilityStatus(): ?bool
+    public function isDisponible(): ?bool
     {
-        return $this->availabilityStatus;
+        return $this->disponible;
     }
 
-    public function setAvailabilityStatus(?bool $availabilityStatus): static
+    public function setDisponible(?bool $disponible): static
     {
-        $this->availabilityStatus = $availabilityStatus;
+        $this->disponible = $disponible;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Reservation>
+     * @return Collection<int, Comment>
      */
-    public function getVehicle(): Collection
+    public function getComment(): Collection
     {
-        return $this->vehicle;
+        return $this->comment;
     }
 
-    public function addVehicle(Reservation $vehicle): static
+    public function addComment(Comment $comment): static
     {
-        if (!$this->vehicle->contains($vehicle)) {
-            $this->vehicle->add($vehicle);
-            $vehicle->setVehicle($this);
-        }
-
-        return $this;
-    }
-
-    public function removeVehicle(Reservation $vehicle): static
-    {
-        if ($this->vehicle->removeElement($vehicle)) {
-            // set the owning side to null (unless already changed)
-            if ($vehicle->getVehicle() === $this) {
-                $vehicle->setVehicle(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): self
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments[] = $comment;
+        if (!$this->comment->contains($comment)) {
+            $this->comment->add($comment);
             $comment->setVehicle($this);
         }
 
         return $this;
     }
 
-    public function removeComment(Comment $comment): self
+    public function removeComment(Comment $comment): static
     {
-        if ($this->comments->contains($comment)) {
-            $this->comments->removeElement($comment);
+        if ($this->comment->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
             if ($comment->getVehicle() === $this) {
                 $comment->setVehicle(null);
             }
@@ -153,4 +129,33 @@ class Vehicle
         return $this;
     }
 
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setVehicle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getVehicle() === $this) {
+                $reservation->setVehicle(null);
+            }
+        }
+
+        return $this;
+    }
 }

@@ -3,41 +3,42 @@
 namespace App\Controller;
 
 use App\Entity\Vehicle;
-use App\Form\VehicleType;
 use App\Entity\Reservation;
+use App\Form\Vehicle1Type;
 use App\Repository\VehicleRepository;
+use App\Entity\Comment;
+use App\Form\CommentType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/vehicle')]
+// #[Route('/vehicle', name: 'app_vehicle')]
 final class VehicleController extends AbstractController
 {
-    #[Route(name: 'app_vehicle_index', methods: ['GET'])]
-    public function index(VehicleRepository $vehicleRepository): Response
+    #[Route('/vehicle', name: 'app_vehicle_index', methods: ['GET'])]
+    public function index(VehicleRepository $vehicleRepository, Request $request): Response
     {
-        // $brand = $request->query->get('brand');
-        // $maxPrice = $request->query->get('maxPrice');
-        // $availability = $request->query->get('availability');
+        $marque = $request->query->get('marque');
+        $prixMin = $request->query->get('prix_min');
+        $prixMax = $request->query->get('prix_max');
+        $disponible = $request->query->get('disponible');
 
-        // $vehicles = $vehicleRepository->searchVehicles($brand, $maxPrice, $availability);
-
-        // return $this->render('vehicle/index.html.twig', [
-        //     'vehicles' => $vehicles,
-        // ]);
+        $disponible = ($disponible !== null && $disponible !== '') ? (bool) $disponible : null;
+        $vehicles = $vehicleRepository->findByFilters($marque, $disponible, $prixMin, $prixMax);
 
         return $this->render('vehicle/index.html.twig', [
-            'vehicles' => $vehicleRepository->findAll(),
+            'vehicles' => $vehicles,
         ]);
     }
+
 
     #[Route('/new', name: 'app_vehicle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $vehicle = new Vehicle();
-        $form = $this->createForm(VehicleType::class, $vehicle);
+        $form = $this->createForm(Vehicle1Type::class, $vehicle);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -53,18 +54,32 @@ final class VehicleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_vehicle_show', methods: ['GET'])]
-    public function show(Vehicle $vehicle): Response
+    #[Route('/vehicle/{id}', name: 'app_vehicle_show')]
+    public function show(Request $request, Vehicle $vehicle, EntityManagerInterface $entityManager): Response
     {
+        $comment = new Comment();
+        $comment->setVehicle($vehicle); 
+
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($comment);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_vehicle_show', ['id' => $vehicle->getId()]);
+        }
+
         return $this->render('vehicle/show.html.twig', [
             'vehicle' => $vehicle,
+            'comments' => $vehicle->getComment(),
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_vehicle_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Vehicle $vehicle, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(VehicleType::class, $vehicle);
+        $form = $this->createForm(Vehicle1Type::class, $vehicle);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -86,19 +101,6 @@ final class VehicleController extends AbstractController
             $entityManager->remove($vehicle);
             $entityManager->flush();
         }
-
-        return $this->redirectToRoute('app_vehicle_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/vehicle/rent/{id}', name: 'app_vehicle_rent', methods: ['GET'])]
-    public function rent(Vehicle $vehicle, EntityManagerInterface $entityManager): Response
-    {
-        $reservation = new Reservation();
-        $reservation->setVehicle($vehicle);
-        $reservation->setReservedAt(new \DateTime());  
-
-        $entityManager->persist($reservation);
-        $entityManager->flush();
 
         return $this->redirectToRoute('app_vehicle_index', [], Response::HTTP_SEE_OTHER);
     }

@@ -1,46 +1,52 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Reservation index{% endblock %}
+{% block title %}Mes Réservations{% endblock %}
 
 {% block body %}
-    <h1>Reservation index</h1>
+    <h1>Mes Réservations</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>StartDate</th>
-                <th>EndDate</th>
-                <th>TotalPrice</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for reservation in reservations %}
-            <tr>
-                <td>{{ reservation.id }}</td>
-                <td>{{ reservation.startDate ? reservation.startDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ reservation.endDate ? reservation.endDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ reservation.totalPrice }}</td>
-                <td>
-                    <a href="{{ path('app_reservation_show', {'id': reservation.id}) }}">show</a>
-                    <a href="{{ path('app_reservation_edit', {'id': reservation.id}) }}">edit</a>
-                    {% if not reservation.isCancelled %}
-                        <form action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger">Cancel</button>
-                        </form>
-                    {% else %}
-                        <p>Cette réservation a été annulée.</p>
-                    {% endif %}
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% if reservations is empty %}
+        <p>Aucune réservation trouvée.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Véhicule</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                    <th>Prix total</th>
+                    <th>Annulation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td>{{ reservation.id }}</td>
+                        <td>{{ reservation.vehicle.marque }} - {{ reservation.vehicle.immatriculation }}</td>
+                        <td>{{ reservation.startDate ? reservation.startDate|date('d/m/Y') : 'Date non définie' }}</td>
+                        <td>{{ reservation.endDate ? reservation.endDate|date('d/m/Y') : 'Date non définie' }}</td>
+                        <td>{{ reservation.totalPrice ? reservation.totalPrice : 'Prix non défini' }} €</td>
+                        <td>{{ reservation.isCancelled ? 'Annulé' : 'En cours' }}</td>
+                        <td>
+                            <a href="{{ path('app_reservation_update', {'id': reservation.id}) }}" class="btn btn-warning">Modifier</a>
 
-    <a href="{{ path('app_reservation_new') }}">Create new</a>
+                            <!-- Formulaire pour annuler la réservation -->
+                            <form action="{{ path('app_reservation_delete', {'id': reservation.id}) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Confirmer l\'annulation ?');">Annuler</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">Aucune réservation trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    {% endif %}
+
+    <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour aux véhicules</a>
 {% endblock %}

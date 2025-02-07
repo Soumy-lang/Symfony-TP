@@ -3,16 +3,38 @@
 {% block title %}Vehicle index{% endblock %}
 
 {% block body %}
-    <h1>Vehicle index</h1>
+    <h1>Tous les vehicules</h1>
+
+    <form method="get">
+        <div class="form-row">
+            <div class="col-md-3">
+                <input type="text" name="marque" class="form-control" placeholder="Filtrer par marque">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="prix_min" class="form-control" placeholder="Prix minimum">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="prix_max" class="form-control" placeholder="Prix maximum">
+            </div>
+            <div class="col-md-3">
+                <select name="disponible" class="form-control">
+                    <option value="">Disponibilité</option>
+                    <option value="1">Disponible</option>
+                    <option value="0">Indisponible</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Filtrer</button>
+    </form>
 
     <table class="table">
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Brand</th>
-                <th>RegistrationNumber</th>
-                <th>DailyPrice</th>
-                <th>AvailabilityStatus</th>
+                <th>Marque</th>
+                <th>Immatriculation</th>
+                <th>PrixJournalier</th>
+                <th>Disponible</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -20,14 +42,16 @@
         {% for vehicle in vehicles %}
             <tr>
                 <td>{{ vehicle.id }}</td>
-                <td>{{ vehicle.brand }}</td>
-                <td>{{ vehicle.registrationNumber }}</td>
-                <td>{{ vehicle.dailyPrice }}</td>
-                <td>{{ vehicle.availabilityStatus ? 'Yes' : 'No' }}</td>
+                <td>{{ vehicle.marque }}</td>
+                <td>{{ vehicle.immatriculation }}</td>
+                <td>{{ vehicle.prixJournalier }}</td>
+                <td>{{ vehicle.disponible ? 'Oui' : 'Non' }}</td>
                 <td>
-                    <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">show</a>
-                    <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}">edit</a>
-                    <a href="{{ path('app_vehicle_rent', {'id': vehicle.id}) }}">Rent</a>
+                    <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">Voir plus</a>
+                    <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}">Editer</a>
+                    <form action="{{ path('app_reservation_new', {'vehicleId': vehicle.id}) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Réserver</button>
+                    </form>
                 </td>
             </tr>
         {% else %}
@@ -38,5 +62,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_vehicle_new') }}">Create new</a>
+    <a href="{{ path('app_vehicle_new') }}">Nouveau</a>
 {% endblock %}

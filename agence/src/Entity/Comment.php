@@ -15,44 +15,30 @@ class Comment
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $text = null;
+    private ?string $content = null;
+
+    #[ORM\ManyToOne(inversedBy: 'comment')]
+    private ?Vehicle $vehicle = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $rating = null;
 
-    #[ORM\ManyToOne(targetEntity: Vehicle::class, inversedBy: 'comments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Vehicle $vehicle = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $username = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getText(): ?string
+    public function getContent(): ?string
     {
-        return $this->text;
+        return $this->content;
     }
 
-    public function setText(?string $text): static
+    public function setContent(?string $content): static
     {
-        $this->text = $text;
-
-        return $this;
-    }
-
-    public function getRating(): ?int
-    {
-        return $this->rating;
-    }
-
-    public function setRating(?int $rating): static
-    {
-        $this->rating = $rating;
+        $this->content = $content;
 
         return $this;
     }
@@ -69,14 +55,26 @@ class Comment
         return $this;
     }
 
-    public function getUsername(): ?User
+    public function getRating(): ?int
     {
-        return $this->username;
+        return $this->rating;
     }
 
-    public function setUsername(?User $username): static
+    public function setRating(?int $rating): static
     {
-        $this->username = $username;
+        $this->rating = $rating;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

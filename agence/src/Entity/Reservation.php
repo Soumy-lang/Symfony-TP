@@ -14,6 +14,12 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    private ?Vehicle $vehicle = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    private ?User $user = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $startDate = null;
 
@@ -23,12 +29,47 @@ class Reservation
     #[ORM\Column(nullable: true)]
     private ?float $totalPrice = null;
 
-    #[ORM\ManyToOne(inversedBy: 'vehicle')]
-    private ?Vehicle $vehicle = null;
+    #[ORM\Column(nullable: true)]
+    private ?bool $isCancelled = null;
+
+    public function calculateTotalPrice(): void
+    {
+        $interval = $this->startDate->diff($this->endDate)->days;
+        $this->totalPrice = $interval * $this->vehicle->getPrixJournalier();
+    }
+
+    public function cancel(): void
+    {
+        $this->isCancelled = true;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getVehicle(): ?Vehicle
+    {
+        return $this->vehicle;
+    }
+
+    public function setVehicle(?Vehicle $vehicle): static
+    {
+        $this->vehicle = $vehicle;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 
     public function getStartDate(): ?\DateTimeInterface
@@ -67,40 +108,14 @@ class Reservation
         return $this;
     }
 
-    public function getVehicle(): ?Vehicle
-    {
-        return $this->vehicle;
-    }
-
-    public function setVehicle(?Vehicle $vehicle): static
-    {
-        $this->vehicle = $vehicle;
-
-        return $this;
-    }
-
-    private $isCancelled = false; // Par défaut, une réservation n'est pas annulée.
-
-    public function getIsCancelled(): ?bool
+    public function isCancelled(): ?bool
     {
         return $this->isCancelled;
     }
 
-    public function setIsCancelled(bool $isCancelled): self
+    public function setIsCancelled(?bool $isCancelled): static
     {
         $this->isCancelled = $isCancelled;
-
-        return $this;
-    }
-
-    public function getReservedAt(): ?\DateTimeInterface
-    {
-        return $this->reservedAt;
-    }
-
-    public function setReservedAt(\DateTimeInterface $reservedAt): self
-    {
-        $this->reservedAt = $reservedAt;
 
         return $this;
     }

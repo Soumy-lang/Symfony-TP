@@ -1,21 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ vehicle.brand }}{% endblock %}
+{% block title %}{{ vehicle.marque }}{% endblock %}
 
 {% block body %}
-    <h1>{{ vehicle.brand }}</h1>
+    <h1>{{ vehicle.marque }}</h1>
 
-    <h3>Commentaires :</h3>
-    <ul>
-        {% for comment in vehicle.comments %}
-            <li>
-                <strong>{{ comment.user.username }} :</strong> 
-                {{ comment.content }} 
-                (Note : {{ comment.rating }})
-            </li>
-        {% else %}
-            <p>Aucun commentaire pour ce véhicule.</p>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Immatriculation</th>
+                <td>{{ vehicle.immatriculation }}</td>
+            </tr>
+            <tr>
+                <th>Prix Journalier</th>
+                <td>{{ vehicle.prixJournalier }} €</td>
+            </tr>
+            <tr>
+                <th>Disponible</th>
+                <td>{{ vehicle.disponible ? 'Oui' : 'Non' }}</td>
+            </tr>
+        </tbody>
+    </table>
 
+    <h2>Commentaires</h2>
+    {% for comment in comments %}
+        <div class="comment">
+            <p><strong>Note:</strong> {{ comment.rating }}/5</p>
+            <p>{{ comment.content }}</p>
+            <small>Posté le {{ comment.createdAt|date('d/m/Y H:i') }}</small>
+        </div>
+        <hr>
+    {% else %}
+        <p>Aucun commentaire pour ce véhicule.</p>
+    {% endfor %}
+
+    <h2>Ajouter un commentaire</h2>
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.content) }}
+            {{ form_widget(form.content, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.rating) }}
+            {{ form_widget(form.rating, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Envoyer</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
 {% endblock %}

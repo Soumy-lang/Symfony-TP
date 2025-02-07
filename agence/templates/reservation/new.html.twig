@@ -1,11 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Reservation{% endblock %}
+{% block title %}Réserver un véhicule{% endblock %}
 
 {% block body %}
-    <h1>Create new Reservation</h1>
+    <h1>Réserver {{ vehicle.marque }}</h1>
 
-    {{ include('reservation/_form.html.twig') }}
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.startDate) }}
+            {{ form_widget(form.startDate, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.endDate) }}
+            {{ form_widget(form.endDate, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Valider</button>
+    {{ form_end(form) }}
 
-    <a href="{{ path('app_reservation_index') }}">back to list</a>
+    <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}" class="btn btn-secondary mt-3">Annuler</a>
 {% endblock %}
