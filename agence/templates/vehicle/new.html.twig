@@ -9,3 +9,40 @@
 
     <a href="{{ path('app_vehicle_index') }}">back to list</a>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupérer le formulaire et le champ du prix
+            const form = document.querySelector('form');
+            const prixJournalierInput = document.querySelector('[id$="_prixJournalier"]'); // Sélectionner l'élément par ID généré
+            const formSubmitButton = form.querySelector('button[type="submit"]');
+
+            // Fonction de validation du prix
+            function validatePrixJournalier() {
+                const prixJournalier = parseFloat(prixJournalierInput.value);
+
+                if (isNaN(prixJournalier)) {
+                    alert('Veuillez entrer un prix valide.');
+                    return false;
+                }
+
+                if (prixJournalier < 100 || prixJournalier > 500) {
+                    alert('Le prix doit être compris entre 100€ et 500€.');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Empêcher la soumission si le prix est invalide
+            form.addEventListener('submit', function(event) {
+                if (!validatePrixJournalier()) {
+                    event.preventDefault();  // Annule la soumission si la validation échoue
+                }
+            });
+        });
+    </script>
+{% endblock %}

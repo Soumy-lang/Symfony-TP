@@ -32,7 +32,7 @@ final class CommentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setVehicle($vehicle);
-            $comment->setUser($this->getUser()); // L'utilisateur connecté laisse un commentaire
+            $comment->setUser($this->getUser()); 
 
             $entityManager->persist($comment);
             $entityManager->flush();

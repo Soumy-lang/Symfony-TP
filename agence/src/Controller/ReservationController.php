@@ -12,12 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-// #[Route('/reservation', name: 'app_reservation')]
+
 class ReservationController extends AbstractController
 {
 
     #[Route('/reservation', name: 'app_reservation_index', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')] // Sécurise l'accès pour les utilisateurs connectés
+    #[IsGranted('ROLE_USER')] 
     public function index(ReservationRepository $reservationRepository, Request $request): Response
     {
         $user = $this->getUser();
@@ -62,25 +62,22 @@ class ReservationController extends AbstractController
     #[Route('/reservation/edit/{id}', name: 'app_reservation_update', methods: ['GET', 'POST'])]
     public function update(Request $request, EntityManagerInterface $entityManager, ReservationRepository $reservationRepository, $id): Response
     {
-        // Récupérer la réservation à partir de l'id
         $reservation = $reservationRepository->find($id);
 
         if (!$reservation) {
             throw $this->createNotFoundException('Réservation non trouvée');
         }
 
-        // Vérifier si la réservation est déjà annulée
         if ($reservation->isCancelled()) {
             throw $this->createNotFoundException('La réservation a été annulée et ne peut plus être modifiée.');
         }
 
-        // Créer le formulaire de modification
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $reservation->calculateTotalPrice();  // Recalculer le prix total après modification
-            $entityManager->flush();  // Sauvegarder les modifications
+            $reservation->calculateTotalPrice();  
+            $entityManager->flush();  
             return $this->redirectToRoute('app_reservation_index');
         }
 
@@ -93,23 +90,20 @@ class ReservationController extends AbstractController
     #[Route('/reservation/cancel/{id}', name: 'app_reservation_delete', methods: ['POST'])]
     public function cancel(Request $request, EntityManagerInterface $entityManager, ReservationRepository $reservationRepository, $id): Response
     {
-        // Récupérer la réservation à partir de l'id
         $reservation = $reservationRepository->find($id);
 
         if (!$reservation) {
             throw $this->createNotFoundException('Réservation non trouvée');
         }
 
-        // Vérifier si la réservation peut être annulée (avant le début de la période)
         if ($reservation->isCancelled()) {
             throw $this->createNotFoundException('Cette réservation a déjà été annulée.');
         }
 
-        // Annuler la réservation
         $reservation->cancel();
-        $entityManager->flush();  // Sauvegarder l'annulation
+        $entityManager->flush(); 
 
-        return $this->redirectToRoute('app_reservation_index');  // Retourner à la liste des réservations
+        return $this->redirectToRoute('app_reservation_index');  
     }
 
 

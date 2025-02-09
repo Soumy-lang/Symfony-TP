@@ -29,6 +29,15 @@ class VehicleType extends AbstractType
                 'label' => 'Disponible',
                 'required' => false,
             ])
+            // ->add('images', FileType::class, [
+            //     'label' => 'Images (fichiers multiples)',
+            //     'mapped' => false,
+            //     'multiple' => true,
+            //     'required' => false,
+            //     'attr' => [
+            //         'accept' => 'image/*',
+            //     ],
+            // ])
         ;
     }
 

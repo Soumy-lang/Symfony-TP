@@ -40,4 +40,27 @@ class VehicleRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getAverageRating(int $vehicleId): ?float
+    {
+        return $this->createQueryBuilder('v')
+            ->select('AVG(c.rating) as avgRating')
+            ->leftJoin('v.comment', 'c')
+            ->where('v.id = :vehicleId')
+            ->setParameter('vehicleId', $vehicleId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findWithImages(int $id): ?Vehicle
+    {
+        return $this->createQueryBuilder('v')
+            ->leftJoin('v.vehicleImage', 'i')
+            ->addSelect('i')
+            ->where('v.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 }

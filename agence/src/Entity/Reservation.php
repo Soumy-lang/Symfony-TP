@@ -20,9 +20,15 @@ class Reservation
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     private ?User $user = null;
 
+    #[Assert\NotNull(message: "La date de début est obligatoire.")]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $startDate = null;
 
+    #[Assert\NotNull(message: "La date de fin est obligatoire.")]
+    #[Assert\GreaterThan(
+        propertyPath: "startDate",
+        message: "La date de fin doit être postérieure à la date de début."
+    )]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
@@ -32,10 +38,20 @@ class Reservation
     #[ORM\Column(nullable: true)]
     private ?bool $isCancelled = null;
 
+    // public function calculateTotalPrice(): void
+    // {
+    //     $interval = $this->startDate->diff($this->endDate)->days;
+    //     $this->totalPrice = $interval * $this->vehicle->getPrixJournalier();
+    // }
+
     public function calculateTotalPrice(): void
     {
         $interval = $this->startDate->diff($this->endDate)->days;
         $this->totalPrice = $interval * $this->vehicle->getPrixJournalier();
+
+        if ($this->totalPrice >= 400) {
+            $this->totalPrice *= 0.9;  
+        }
     }
 
     public function cancel(): void
@@ -119,4 +135,6 @@ class Reservation
 
         return $this;
     }
+
+
 }

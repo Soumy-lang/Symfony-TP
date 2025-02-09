@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+    <h1>Mes véhicules favoris</h1>
+    
+    {% if favorites is empty %}
+        <p>Aucun véhicule en favori.</p>
+    {% else %}
+        <ul>
+            {% for favorite in favorites %}
+                <li>
+                    <a href="{{ path('app_vehicle_show', {'id': favorite.vehicle.id}) }}">
+                        {{ favorite.vehicle.marque }}
+                    </a>
+                    <form method="post" action="{{ path('app_favorite_toggle', {'id': favorite.vehicle.id}) }}">
+                        <button type="submit" class="btn btn-danger">❌ Retirer</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour aux véhicules</a>
+{% endblock %}

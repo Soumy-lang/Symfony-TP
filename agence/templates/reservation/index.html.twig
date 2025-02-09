@@ -13,6 +13,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Véhicule</th>
+                    <th>Immatriculation</th>
                     <th>Date de début</th>
                     <th>Date de fin</th>
                     <th>Prix total</th>
@@ -24,7 +25,8 @@
                 {% for reservation in reservations %}
                     <tr>
                         <td>{{ reservation.id }}</td>
-                        <td>{{ reservation.vehicle.marque }} - {{ reservation.vehicle.immatriculation }}</td>
+                        <td>{{ reservation.vehicle.marque }}</td>
+                        <td>{{ reservation.vehicle.immatriculation }}</td>
                         <td>{{ reservation.startDate ? reservation.startDate|date('d/m/Y') : 'Date non définie' }}</td>
                         <td>{{ reservation.endDate ? reservation.endDate|date('d/m/Y') : 'Date non définie' }}</td>
                         <td>{{ reservation.totalPrice ? reservation.totalPrice : 'Prix non défini' }} €</td>

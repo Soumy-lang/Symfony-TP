@@ -4,6 +4,7 @@
 
 {% block body %}
     <h1>{{ vehicle.marque }}</h1>
+    <p>Nombre de réservations : {{ numberOfReservations }}</p>
 
     <table class="table">
         <tbody>
@@ -22,6 +23,13 @@
         </tbody>
     </table>
 
+    <form method="post" action="{{ path('app_favorite_toggle', {'id': vehicle.id}) }}">
+        <button type="submit" class="btn {% if vehicle.id in favoriteVehicleIds %}btn-danger{% else %}btn-outline-primary{% endif %}">
+            {% if vehicle.id in favoriteVehicleIds %}❤️ Retirer des favoris{% else %}💙 Ajouter aux favoris{% endif %}
+        </button>
+    </form>
+
+
     <h2>Commentaires</h2>
     {% for comment in comments %}
         <div class="comment">
@@ -34,18 +42,28 @@
         <p>Aucun commentaire pour ce véhicule.</p>
     {% endfor %}
 
-    <h2>Ajouter un commentaire</h2>
-    {{ form_start(form) }}
-        <div class="form-group">
-            {{ form_label(form.content) }}
-            {{ form_widget(form.content, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="form-group">
-            {{ form_label(form.rating) }}
-            {{ form_widget(form.rating, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Envoyer</button>
-    {{ form_end(form) }}
+    {% if averageRating is not null %}
+        <p><strong>Note moyenne :</strong> {{ averageRating|number_format(1) }}/5 ⭐</p>
+    {% else %}
+        <p>Aucune note disponible</p>
+    {% endif %}
+
+    {% if hasRented %}
+        <h2>Ajouter un commentaire</h2>
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form.content) }}
+                {{ form_widget(form.content, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.rating) }}
+                {{ form_widget(form.rating, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Envoyer</button>
+        {{ form_end(form) }}
+    {% else %}
+        <p class="text-muted">Vous devez avoir loué ce véhicule pour laisser un commentaire.</p>
+    {% endif %}
 
     <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
 {% endblock %}

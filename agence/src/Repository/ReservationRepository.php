@@ -16,6 +16,19 @@ class ReservationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reservation::class);
     }
 
+    public function hasUserRentedVehicle(int $userId, int $vehicleId): bool
+    {
+        return (bool) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.user = :userId')
+            ->andWhere('r.vehicle = :vehicleId')
+            ->setParameter('userId', $userId)
+            ->setParameter('vehicleId', $vehicleId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+
     //    /**
     //     * @return Reservation[] Returns an array of Reservation objects
     //     */

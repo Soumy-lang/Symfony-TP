@@ -23,6 +23,12 @@ class Vehicle
     private ?string $immatriculation = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\NotNull(message: "Le prix journalier ne peut pas être vide.")]
+    #[Assert\Range(
+        min: 100,
+        max: 500,
+        notInRangeMessage: "Le prix doit être compris entre {{ min }}€ et {{ max }}€."
+    )]
     private ?float $prixJournalier = null;
 
     #[ORM\Column(nullable: true)]
@@ -40,10 +46,25 @@ class Vehicle
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'vehicle')]
     private Collection $reservations;
 
+    /**
+     * @var Collection<int, VehicleImage>
+     */
+    #[ORM\OneToMany(targetEntity: VehicleImage::class, mappedBy: 'vehicle', cascade: ['persist', 'remove'])]
+    private Collection $vehicleImages;
+
+    /**
+     * @var Collection<int, Favorite>
+     */
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'vehicle')]
+    private Collection $favorites;
+
+
     public function __construct()
     {
         $this->comment = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->vehicleImages = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,6 +174,71 @@ class Vehicle
             // set the owning side to null (unless already changed)
             if ($reservation->getVehicle() === $this) {
                 $reservation->setVehicle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNumberOfReservations(): int
+    {
+        return count($this->reservations); 
+    }
+
+    /**
+     * @return Collection<int, VehicleImage>
+     */
+    public function getVehicleImages(): Collection
+    {
+        return $this->vehicleImages;
+    }
+
+    public function addVehicleImage(VehicleImage $vehicleImage): static
+    {
+        if (!$this->vehicleImages->contains($vehicleImage)) {
+            $this->vehicleImages->add($vehicleImage);
+            $vehicleImage->setVehicle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVehicleImage(VehicleImage $vehicleImage): static
+    {
+        if ($this->vehicleImages->removeElement($vehicleImage)) {
+            // set the owning side to null (unless already changed)
+            if ($vehicleImage->getVehicle() === $this) {
+                $vehicleImage->setVehicle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favorite>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorite $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->setVehicle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorite $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getVehicle() === $this) {
+                $favorite->setVehicle(null);
             }
         }
 

@@ -35,6 +35,7 @@
                 <th>Immatriculation</th>
                 <th>PrixJournalier</th>
                 <th>Disponible</th>
+                <th>Reservations</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -46,6 +47,7 @@
                 <td>{{ vehicle.immatriculation }}</td>
                 <td>{{ vehicle.prixJournalier }}</td>
                 <td>{{ vehicle.disponible ? 'Oui' : 'Non' }}</td>
+                <td>{{ vehicle.getNumberOfReservations() }}</td>
                 <td>
                     <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">Voir plus</a>
                     <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}">Editer</a>
